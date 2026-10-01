@@ -29,12 +29,18 @@ body {
 /* ============================================================
    SMOOTH GLOBAL TRANSITIONS
    ============================================================ */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 /* Smooth transitions on all interactive elements */
-button, a, input, select, textarea {
+button,
+a,
+input,
+select,
+textarea {
   transition: all 0.2s ease;
 }
 
@@ -47,6 +53,7 @@ button, a, input, select, textarea {
     transform: translateY(12px);
     filter: blur(4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -55,8 +62,13 @@ button, a, input, select, textarea {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
@@ -64,6 +76,7 @@ button, a, input, select, textarea {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -75,6 +88,7 @@ button, a, input, select, textarea {
     opacity: 0;
     transform: scale(0.94);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -82,9 +96,17 @@ button, a, input, select, textarea {
 }
 
 @keyframes pulse-ring {
-  0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-  70%  { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
 }
 
 .page-enter {
@@ -100,12 +122,29 @@ button, a, input, select, textarea {
 }
 
 /* Staggered children animation */
-.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
-.stagger-children > *:nth-child(2) { animation-delay: 60ms; }
-.stagger-children > *:nth-child(3) { animation-delay: 120ms; }
-.stagger-children > *:nth-child(4) { animation-delay: 180ms; }
-.stagger-children > *:nth-child(5) { animation-delay: 240ms; }
-.stagger-children > *:nth-child(6) { animation-delay: 300ms; }
+.stagger-children>*:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.stagger-children>*:nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.stagger-children>*:nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.stagger-children>*:nth-child(4) {
+  animation-delay: 180ms;
+}
+
+.stagger-children>*:nth-child(5) {
+  animation-delay: 240ms;
+}
+
+.stagger-children>*:nth-child(6) {
+  animation-delay: 300ms;
+}
 
 /* ============================================================
    CUSTOM SCROLLBAR
@@ -114,13 +153,16 @@ button, a, input, select, textarea {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 99px;
 }
+
 .dark ::-webkit-scrollbar-thumb {
   background: #334155;
 }
@@ -131,6 +173,7 @@ button, a, input, select, textarea {
 .hover-lift {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
 .hover-lift:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
@@ -147,8 +190,13 @@ button, a, input, select, textarea {
    LOADING SKELETON
    ============================================================ */
 @keyframes skeleton-wave {
-  0%   { background-position: 200% center; }
-  100% { background-position: -200% center; }
+  0% {
+    background-position: 200% center;
+  }
+
+  100% {
+    background-position: -200% center;
+  }
 }
 
 .skeleton {
@@ -181,7 +229,10 @@ button, a, input, select, textarea {
 /* ============================================================
    FOCUS RING OVERRIDE — more elegant
    ============================================================ */
-input:focus, select:focus, textarea:focus, button:focus-visible {
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible {
   outline: 2px solid #6366f1;
   outline-offset: 2px;
 }
@@ -192,13 +243,14 @@ input:focus, select:focus, textarea:focus, button:focus-visible {
 .gradient-border {
   position: relative;
 }
+
 .gradient-border::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(168,85,247,0.3));
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
