@@ -21,10 +21,13 @@
     "express": "^5.2.1",
     "multer": "^2.4.0",
     "pg": "^8.23.1",
-    "string-similarity": "^4.0.4",
     "zod": "^4.6.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
+  },
+  "allowScripts": {
+    "@google/genai@2.25.0": true,
+    "protobufjs@7.6.6": true
   }
 }
