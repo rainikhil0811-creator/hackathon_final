@@ -1,22 +1,30 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PackagePlus, LogIn, UserPlus, Loader2, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { PackagePlus, LogIn, UserPlus, Loader2, AlertCircle, CheckCircle2, Eye, EyeOff, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import { supabase } from '../utils/supabase';
+
+// ─── DEMO CREDENTIALS (shown on login page) ───────────────────────
+const DEMO_EMAIL    = 'demo@dukaansaathi.in';
+const DEMO_PASSWORD = 'demo1234';
+const DEMO_SHOP     = 'Ramesh Kirana Store';
 
 export default function Login() {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [shopName, setShopName] = useState('');
+  const [email, setEmail]           = useState('');
+  const [password, setPassword]     = useState('');
+  const [shopName, setShopName]     = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [loading, setLoading]       = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [error, setError]           = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
 
   const switchMode = (toLogin) => {
@@ -28,6 +36,17 @@ export default function Login() {
     setShopName('');
   };
 
+  // ── Demo login — bypasses Supabase, sets auth state ───────────────
+  const handleDemoLogin = () => {
+    setDemoLoading(true);
+    setError(null);
+    setTimeout(() => {
+      login({ email: DEMO_EMAIL, shopName: DEMO_SHOP, isDemo: true });
+      setDemoLoading(false);
+      navigate('/');
+    }, 800);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -36,11 +55,18 @@ export default function Login() {
 
     try {
       if (isLogin) {
+        // Allow demo credentials without hitting Supabase
+        if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
+          login({ email: DEMO_EMAIL, shopName: DEMO_SHOP, isDemo: true });
+          setTimeout(() => navigate('/'), 600);
+          return;
+        }
+
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        login({ email, shopName: 'My Shop', isDemo: false });
         navigate('/');
       } else {
-        // Validation
         if (!shopName.trim()) throw new Error('Please enter your shop name.');
         if (password.length < 6) throw new Error('Password must be at least 6 characters.');
 
@@ -51,36 +77,35 @@ export default function Login() {
         });
         if (error) throw error;
 
-        // Check if email confirmation is needed
         if (data?.user && !data?.session) {
-          setSuccessMsg('Account created! Please check your email to confirm your account, then sign in.');
+          setSuccessMsg('Account created! Please check your email to confirm, then sign in.');
           setIsLogin(true);
           setEmail('');
           setPassword('');
         } else {
-          // Auto-logged in (email confirmation disabled)
           setSuccessMsg('Account created successfully! Redirecting...');
           setTimeout(() => navigate('/'), 1500);
         }
       }
     } catch (err) {
-      // Make error messages more friendly
       const msg = err.message;
-      if (msg.includes('Invalid login credentials')) {
-        setError('Incorrect email or password. Please try again.');
-      } else if (msg.includes('User already registered')) {
+      if (msg.includes('Invalid login credentials'))
+        setError('Incorrect email or password. Try the Demo Login below!');
+      else if (msg.includes('User already registered'))
         setError('An account with this email already exists. Try signing in instead.');
-      } else if (msg.includes('Email not confirmed')) {
+      else if (msg.includes('Email not confirmed'))
         setError('Please confirm your email before signing in.');
-      } else {
+      else if (msg.includes('fetch') || msg.includes('network') || msg.includes('URL'))
+        setError('Cannot reach server. Use the Demo Login button below to explore the app!');
+      else
         setError(msg);
-      }
     } finally {
       setLoading(false);
     }
   };
 
-  const inputClass = "w-full px-4 py-3 bg-white dark:bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-sm font-medium";
+  const inputClass =
+    'w-full px-4 py-3 bg-white dark:bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-sm font-medium';
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -90,6 +115,7 @@ export default function Login() {
         <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-purple-200/40 dark:bg-purple-900/20 blur-3xl" />
       </div>
 
+      {/* Logo */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -111,8 +137,53 @@ export default function Login() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.08 }}
-        className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10"
+        className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 space-y-4"
       >
+        {/* ── DEMO LOGIN CARD ── */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.15 }}
+          className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-5 shadow-xl shadow-indigo-500/20"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <p className="font-bold text-white flex items-center gap-2 text-sm mb-2">
+                <Zap className="w-4 h-4 text-yellow-300" />
+                Quick Demo Login
+              </p>
+              <div className="space-y-1 text-xs text-indigo-100 font-mono bg-white/10 rounded-xl p-3">
+                <div className="flex gap-2">
+                  <span className="text-indigo-300 w-20 shrink-0">Email</span>
+                  <span className="text-white font-bold">{DEMO_EMAIL}</span>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-indigo-300 w-20 shrink-0">Password</span>
+                  <span className="text-white font-bold">{DEMO_PASSWORD}</span>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-indigo-300 w-20 shrink-0">Shop</span>
+                  <span className="text-white font-bold">{DEMO_SHOP}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={handleDemoLogin}
+            disabled={demoLoading}
+            className="mt-4 w-full py-3 bg-white hover:bg-gray-50 text-indigo-700 font-bold rounded-xl transition-colors flex items-center justify-center gap-2 shadow-md text-sm disabled:opacity-80"
+          >
+            {demoLoading ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> Opening Demo...</>
+            ) : (
+              <><Zap className="w-4 h-4 text-indigo-500" /> Enter Demo Dashboard</>
+            )}
+          </motion.button>
+        </motion.div>
+
+        {/* ── AUTH FORM CARD ── */}
         <div className="bg-white dark:bg-slate-900 shadow-xl shadow-black/5 dark:shadow-black/20 rounded-3xl border border-gray-100 dark:border-slate-800 px-8 py-8">
 
           {/* Mode Tabs */}
@@ -135,9 +206,7 @@ export default function Login() {
           <AnimatePresence>
             {successMsg && (
               <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
+                initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                 className="mb-5 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-start gap-3"
               >
                 <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
@@ -150,9 +219,7 @@ export default function Login() {
           <AnimatePresence>
             {error && (
               <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
+                initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                 className="mb-5 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3"
               >
                 <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
@@ -196,7 +263,7 @@ export default function Login() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 className={inputClass}
-                placeholder="you@example.com"
+                placeholder={isLogin ? DEMO_EMAIL : 'you@example.com'}
                 required
                 autoComplete="email"
               />
@@ -227,6 +294,17 @@ export default function Login() {
               </div>
             </div>
 
+            {/* Quick-fill demo credentials button */}
+            {isLogin && (
+              <button
+                type="button"
+                onClick={() => { setEmail(DEMO_EMAIL); setPassword(DEMO_PASSWORD); }}
+                className="text-xs text-indigo-500 dark:text-indigo-400 hover:underline font-medium"
+              >
+                ← Fill demo credentials
+              </button>
+            )}
+
             <motion.button
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
@@ -244,12 +322,11 @@ export default function Login() {
             </motion.button>
           </form>
 
-          {/* Demo hint */}
           <div className="mt-5 pt-5 border-t border-gray-100 dark:border-slate-800">
             <p className="text-xs text-center text-gray-400 dark:text-gray-500">
               {isLogin
                 ? "Don't have an account? Click Register Shop above."
-                : "Already have an account? Click Sign In above."}
+                : 'Already have an account? Click Sign In above.'}
             </p>
           </div>
         </div>

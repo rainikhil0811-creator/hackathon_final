@@ -1,7 +1,8 @@
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { Home, PackagePlus, List, Bell, User, LogOut, ChevronRight } from 'lucide-react';
+import { Home, PackagePlus, List, Bell, User, LogOut, ChevronRight, Store } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const pageVariants = {
   initial: { opacity: 0, y: 14, filter: 'blur(6px)' },
@@ -13,6 +14,12 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useLanguage();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const navItems = [
     { path: '/',              label: t('dashboard'), icon: Home },
@@ -32,7 +39,27 @@ export default function Layout() {
     <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">
       {/* ── SIDEBAR (Desktop) ── */}
       <aside className="hidden md:flex flex-col w-60 bg-white dark:bg-slate-900 border-r border-gray-100 dark:border-slate-800 px-4 py-5 flex-shrink-0">
-        {/* Logo */}
+        {/* User info */}
+        <div className="px-3 py-3 mb-3 bg-gray-50 dark:bg-slate-800 rounded-xl">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Store className="w-4 h-4 text-white" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                {user?.shopName || 'My Shop'}
+              </p>
+              <p className="text-[10px] text-gray-400 truncate">{user?.email || ''}</p>
+            </div>
+          </div>
+          {user?.isDemo && (
+            <span className="mt-2 inline-block text-[10px] font-bold bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full">
+              DEMO MODE
+            </span>
+          )}
+        </div>
+
+        {/* App Logo */}
         <div className="flex items-center gap-3 px-2 mb-7">
           <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-500/30 flex-shrink-0">
             <PackagePlus className="w-4 h-4 text-white" />
@@ -80,7 +107,7 @@ export default function Layout() {
             )}
           </NavLink>
           <button
-            onClick={() => navigate('/login')}
+            onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
           >
             <LogOut style={{ width: '18px', height: '18px' }} className="flex-shrink-0" />
