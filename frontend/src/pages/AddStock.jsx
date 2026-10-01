@@ -5,7 +5,9 @@ import axios from 'axios';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../utils/supabase';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// When deployed on Vercel services, /api is routed to backend on the same origin.
+// In standalone local dev without Vercel proxy, fallback to http://localhost:5000.
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000' : '');
 
 export default function AddStock() {
   const { t } = useLanguage();
