@@ -199,8 +199,9 @@ input:focus, select:focus, textarea:focus, button:focus-visible {
   border-radius: inherit;
   padding: 1px;
   background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(168,85,247,0.3));
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
   pointer-events: none;
 }
